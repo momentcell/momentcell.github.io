@@ -22,7 +22,6 @@
         <a href="#contact">联系我</a>
       </div>
       <div class="nav-actions">
-        <button class="btn btn-sm btn-soft" id="btnOpenTemplate" type="button">+ 新增项目模板</button>
         <a class="btn btn-sm" id="navGithub" href="https://github.com/momentcell" target="_blank" rel="noopener">GitHub</a>
         <button class="btn btn-icon" data-theme-toggle aria-label="切换主题">🌙</button>
       </div>
@@ -143,30 +142,6 @@
       <span>托管于 GitHub Pages · 零构建纯静态架构</span>
     </div>
   </footer>
-
-  <!-- 新增项目模板生成器弹窗 -->
-  <div class="modal-backdrop" id="templateModal" aria-hidden="true">
-    <div class="modal-panel">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-        <h3 style="margin:0;font-size:1.1rem;">+ 快速新增个人项目到仓库</h3>
-        <button class="btn btn-sm" id="btnCloseModal" type="button">关闭</button>
-      </div>
-      <p style="margin:0 0 12px;font-size:0.85rem;color:var(--text-secondary);">
-        填写下面几项，自动生成规范代码片段，粘贴到 <code>data/projects.js</code> 的 <code>PROJECTS_DATA</code> 数组中保存即可在网站生效！
-      </p>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
-        <input id="tplTitle" type="text" placeholder="项目名称（如：ESP32 桌面天气时钟）" style="padding:8px 12px;border-radius:10px;border:1px solid var(--border);background:var(--bg-subtle);color:var(--text);font-family:inherit;" />
-        <input id="tplCat" type="text" placeholder="分类（如：嵌入式与控制）" value="嵌入式与控制" style="padding:8px 12px;border-radius:10px;border:1px solid var(--border);background:var(--bg-subtle);color:var(--text);font-family:inherit;" />
-        <input id="tplTags" type="text" placeholder="标签，逗号分隔（如：ESP32,LVGL,PCB）" style="padding:8px 12px;border-radius:10px;border:1px solid var(--border);background:var(--bg-subtle);color:var(--text);font-family:inherit;" />
-        <input id="tplRepo" type="text" placeholder="GitHub 仓库链接（选填）" value="https://github.com/" style="padding:8px 12px;border-radius:10px;border:1px solid var(--border);background:var(--bg-subtle);color:var(--text);font-family:inherit;" />
-      </div>
-      <input id="tplSummary" type="text" placeholder="一句话项目简介..." style="width:100%;padding:8px 12px;border-radius:10px;border:1px solid var(--border);background:var(--bg-subtle);color:var(--text);font-family:inherit;margin-bottom:12px;" />
-      <pre class="modal-pre mono" id="tplPreview"></pre>
-      <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:12px;">
-        <button class="btn btn-primary" id="btnCopyTpl" type="button">一键复制配置代码</button>
-      </div>
-    </div>
-  </div>
 
   <div id="toast" class="toast"></div>
 

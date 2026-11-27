@@ -70,36 +70,35 @@ window.PROJECTS_DATA = [
   {
     id: "next-hardware-project",
     featured: false,
-    title: "下一个奇思妙想预留位（Idea 笔记本）",
-    subtitle: "留给未来想做的小玩意：编辑 data/projects.js 就能随时上架新作品",
+    title: "Idea 灵感便签 · 下一个硬件小作品构思中",
+    subtitle: "给未来冒出来的奇思妙想留好位置，边学嵌入式边慢慢把它们变成现实",
     category: "想法与规划",
-    status: "构思中",
+    status: "灵感收集",
     year: "2026+",
     cover: "",
     customUrl: "",
-    repoUrl: "https://github.com/momentcell/momentcell.github.io",
+    repoUrl: "https://github.com/momentcell",
     tags: ["奇思妙想", "新手成长", "持续更新"],
     highlights: [
-      { label: "新增方式", value: "复制模板粘贴" },
-      { label: "托管平台", value: "GitHub Pages" },
-      { label: "目标", value: "保持好奇与动手" }
+      { label: "当前阶段", value: "头脑风暴中" },
+      { label: "方向", value: "桌面小硬件 / 机器人" },
+      { label: "初心", value: "保持好奇与动手" }
     ],
-    summary: "这里先留一个空位，记录我之后冒出来的嵌入式小点子——也许是一个桌面小摆件、一个小传感器玩具，或者更有趣的机器人尝试。点首页右上角“+ 新增项目模板”就能快速添进来。",
-    overview: "这个个人网站特意做成了纯静态数据驱动，不需要复杂的前端工具链。以后每实现一个小点子，在 data/projects.js 里加一段小记录就可以永久存档。",
+    summary: "这里留给下一个刚冒出来的小点子——也许是一台温暖的桌面小摆件、一个有趣的小传感器玩具，或者更进阶的机器人实验。等画完电路、调通代码，就会把完整笔记和踩坑记录放进来。",
+    overview: "作为嵌入式新手，每次逛开源社区都会冒出很多好玩的小点子。这个位置用来提醒自己：想到就画草图、买了器件就动手焊，一步步把想法做出来。",
     architecture: [
-      "在 data/projects.js 的 PROJECTS_DATA 里追加一个新的项目对象。",
-      "把拍好的小作品照片放到 assets/img/ 并在 cover 字段写上路径。",
-      "如果只是图文记录直接复用通用详情页；想做互动演示就单独放一个 HTML 到 projects/ 目录。"
+      "灵感备选 1：带温和暖光与屏幕交互的桌面小气象/番茄钟摆件。",
+      "灵感备选 2：升级平衡小车 3S 动力电池并补充实测波形对比记录。",
+      "灵感备选 3：尝试自己从零画一块完整的小型主控 PCB 并打样焊接。"
     ],
     challenges: [
       {
-        problem: "作为新手怎么把学习过程长期沉淀下来？",
-        solution: "每次把踩过的坑、画过的草图和调通的参数都存进这个小站，回头看就能看到自己一点点的进步。"
+        problem: "作为新手怎么坚持把一个个小点子真正落地？",
+        solution: "从小而具体的目标开始，每次解决一个小问题就记进这个小站，慢慢攒出属于自己的成长轨迹。"
       }
     ],
     bom: [
-      { part: "data/site-config.js", spec: "个人名片与学习清单", note: "随时更新成长记录" },
-      { part: "data/projects.js", spec: "项目小仓库", note: "收纳每一个实现的 Idea" }
+      { part: "好奇心与耐心", spec: "持续更新", note: "欢迎发邮件一起交流有趣的小点子" }
     ]
   }
 ];

@@ -229,79 +229,11 @@
     requestAnimationFrame(tick);
   }
 
-  // ==================== 新增项目模板生成器 ====================
-  function initTemplateModal() {
-    const modal = document.getElementById("templateModal");
-    const inputs = ["tplTitle", "tplCat", "tplTags", "tplRepo", "tplSummary"].map((id) => document.getElementById(id));
-    const pre = document.getElementById("tplPreview");
-
-    function updatePreview() {
-      const title = (inputs[0].value || "我的新项目").trim();
-      const cat = (inputs[1].value || "嵌入式与控制").trim();
-      const tags = (inputs[2].value || "STM32,硬件,控制")
-        .split(/[,，]/)
-        .map((s) => s.trim())
-        .filter(Boolean);
-      const repo = (inputs[3].value || "https://github.com/").trim();
-      const summary = (inputs[4].value || "用一句话介绍项目的核心功能与亮点。").trim();
-      const slug = "project-" + Date.now().toString().slice(-4);
-
-      const snippet = `{
-  id: "${slug}",
-  featured: false,
-  title: "${title}",
-  subtitle: "${summary}",
-  category: "${cat}",
-  status: "已完成",
-  year: "2026",
-  cover: "",
-  customUrl: "",
-  repoUrl: "${repo}",
-  tags: ${JSON.stringify(tags)},
-  highlights: [
-    { label: "核心平台", value: "${tags[0] || "STM32"}" },
-    { label: "状态", value: "实测通过" }
-  ],
-  summary: "${summary}",
-  overview: "这里填写项目背景与完整设计思路。",
-  architecture: ["模块一说明", "模块二说明"],
-  challenges: [
-    { problem: "遇到的工程难点", solution: "定位原因与最终解决方式" }
-  ],
-  bom: [
-    { part: "核心器件", spec: "型号参数", note: "备注" }
-  ]
-},`;
-      pre.textContent = snippet;
-    }
-
-    inputs.forEach((i) => i.addEventListener("input", updatePreview));
-    updatePreview();
-
-    const openModal = () => {
-      modal.classList.add("open");
-      modal.setAttribute("aria-hidden", "false");
-    };
-    const closeModal = () => {
-      modal.classList.remove("open");
-      modal.setAttribute("aria-hidden", "true");
-    };
-
-    document.getElementById("btnOpenTemplate").onclick = openModal;
-    document.getElementById("btnCloseModal").onclick = closeModal;
-    modal.addEventListener("click", (e) => { if (e.target === modal) closeModal(); });
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape" && modal.classList.contains("open")) closeModal();
-    });
-    document.getElementById("btnCopyTpl").onclick = () => copyText(pre.textContent, "已复制项目模板，直接粘贴到 data/projects.js 即可！");
-  }
-
   document.addEventListener("DOMContentLoaded", () => {
     renderProfile();
     renderFilters();
     renderProjects();
     initMiniCar();
-    initTemplateModal();
 
     document.getElementById("projectSearch").addEventListener("input", (e) => {
       currentQuery = e.target.value;
