@@ -162,23 +162,31 @@
     ctx.closePath();
   }
 
-  function drawLegend(ctx, items, x, y) {
+  function drawLegend(ctx, items, x, y, maxW) {
     ctx.save();
     ctx.font = '600 11.5px "PingFang SC", "Microsoft YaHei", sans-serif';
+    const limitW = maxW || (ctx.canvas.clientWidth || 600) - 12;
     let cx = x;
+    let cy = y;
     items.forEach((it) => {
+      const textW = ctx.measureText(it.label).width;
+      const itemW = 21 + textW + 14;
+      if (cx > x && cx + itemW > limitW) {
+        cx = x;
+        cy += 16;
+      }
       ctx.strokeStyle = it.color;
       ctx.lineWidth = it.lw || 2.5;
       ctx.setLineDash(it.dash || []);
       ctx.beginPath();
-      ctx.moveTo(cx, y - 4);
-      ctx.lineTo(cx + 16, y - 4);
+      ctx.moveTo(cx, cy - 4);
+      ctx.lineTo(cx + 16, cy - 4);
       ctx.stroke();
       ctx.setLineDash([]);
 
       ctx.fillStyle = it.textColor || getPalette().text;
-      ctx.fillText(it.label, cx + 21, y);
-      cx += 21 + ctx.measureText(it.label).width + 16;
+      ctx.fillText(it.label, cx + 21, cy);
+      cx += itemW;
     });
     ctx.restore();
   }

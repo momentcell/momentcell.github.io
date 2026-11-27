@@ -982,14 +982,15 @@
       cctx.lineTo(curX, chartC.h - 14);
       cctx.stroke();
 
+      const isNarrow = chartC.w < 480;
       drawLegend(cctx, [
-        { label: "合加速度 AccMagG (0g失重 / 6.6g触地)", color: pc.c3 },
-        { label: "优化版倾角 Angle (落地迅速回 0°)", color: pc.c1 }
-      ], padL, 15);
+        { label: isNarrow ? "AccMagG (g)" : "合加速度 AccMagG (0g失重 / 6.6g触地)", color: pc.c3 },
+        { label: isNarrow ? "倾角 Angle (°)" : "优化版倾角 Angle (落地迅速回 0°)", color: pc.c1 }
+      ], padL, 15, chartC.w - 10);
       cctx.fillStyle = pc.muted;
       cctx.font = '600 11px "PingFang SC", sans-serif';
-      cctx.fillText("空中 A (247ms)", tx(0.46), chartC.h - 4);
-      cctx.fillText("触地稳姿恢复 L", tx(0.74), chartC.h - 4);
+      cctx.fillText(isNarrow ? "空中 A" : "空中 A (247ms)", tx(0.46), chartC.h - 4);
+      cctx.fillText(isNarrow ? "落地 L" : "触地稳姿恢复 L", tx(0.74), chartC.h - 4);
     }
 
     return { updateAndDraw };
@@ -1270,6 +1271,7 @@
       .map((chip) => ({ chip, sec: document.querySelector(chip.getAttribute("href")) }))
       .filter((p) => p.sec);
 
+    let lastCurrent = null;
     function updateActive() {
       const y = window.scrollY + 155;
       let current = pairs[0];
@@ -1277,6 +1279,14 @@
         if (item.sec.offsetTop <= y) current = item;
       }
       pairs.forEach((p) => p.chip.classList.toggle("active", p === current));
+      if (current && current !== lastCurrent) {
+        lastCurrent = current;
+        const bar = current.chip.parentElement;
+        if (bar && bar.scrollWidth > bar.clientWidth) {
+          const targetLeft = current.chip.offsetLeft - (bar.clientWidth - current.chip.clientWidth) / 2;
+          bar.scrollTo({ left: Math.max(0, targetLeft), behavior: "smooth" });
+        }
+      }
     }
 
     window.addEventListener("scroll", updateActive, { passive: true });
