@@ -1,30 +1,28 @@
 /**
  * ============================================================================
- * Sunshine 个人项目仓库数据库
- * 以后每完成一个新小作品，只需在 PROJECTS_DATA 数组里新增一条对象，
- * 首页卡片、分类筛选、关键字搜索以及详情页 (project.html?id=xxx) 会自动生成。
+ * Sunshine 个人学习项目与 Idea 仓库
  * ============================================================================
  */
 window.PROJECTS_DATA = [
   {
     id: "stm32-balance-car",
     featured: true,
-    title: "STM32 两轮平衡小车 · 减晃优化与 30cm 下台阶稳姿实验",
-    subtitle: "一个嵌入式新手边学边改的第一个完整小作品：记录从原地晃动到相对丝滑、并尝试下 30cm 台阶防摔的全过程",
+    title: "STM32 两轮平衡小车 · 减晃调优与 30cm 下台阶学习记录",
+    subtitle: "暑假接触嵌入式后认真折腾的第一个完整小项目：记录减晃调参思路、30cm 下台阶稳姿方案与互动原理笔记",
     category: "嵌入式与控制",
-    status: "学习实战 · 含交互演示",
+    status: "学习实战 · 含互动演示",
     year: "2026",
     cover: "assets/img/balance-car-hero.jpg",
     customUrl: "projects/balance-car/index.html",
-    repoUrl: "https://github.com/momentcell/momentcell.github.io",
+    repoUrl: "",
     tags: ["STM32F103", "串级 PID", "MPU6050", "互补滤波", "30cm下台阶", "NRF24L01", "XCOM调参"],
     highlights: [
       { label: "控制周期", value: "500Hz / 100Hz" },
       { label: "PWM 分辨率", value: "20kHz · 3600级" },
-      { label: "小实验目标", value: "30cm 下台阶稳姿" },
+      { label: "尝试目标", value: "30cm 下台阶稳姿" },
       { label: "测速改进", value: "91ms → 35ms" }
     ],
-    summary: "在开源 STM32 平衡车模板基础上，带着“想让车更稳一点、还能下个 30cm 小台阶”的想法一步步折腾出来的小项目。试着开启了 MPU6050 42Hz 滤波、细化 3600 级 PWM 与平滑死区、改用 40ms 滑窗测速，并写了一个简单的三态跌落恢复状态机（GROUND → AIRBORNE → LANDING），把整个原理做成了入门也能看懂的互动动画笔记。"
+    summary: "在开源 STM32 平衡车模板基础上，带着“想让车更稳一点、还能尝试下 30cm 小台阶”的想法断断续续折腾出来的小项目。试着开启 MPU6050 42Hz 滤波、细化 3600 级 PWM 与平滑死区、改用 40ms 滑窗测速，并设计了一套三态跌落恢复状态机（GROUND → AIRBORNE → LANDING），把整个原理做成了方便自己复盘的互动动画笔记。"
   },
   {
     id: "xcom-pid-tuner-protocol",
@@ -32,12 +30,12 @@ window.PROJECTS_DATA = [
     title: "正点原子 XCOM 串口在线调参小工具（USART2）",
     subtitle: "为了少拔几次 ST-Link 写的小脚本协议：支持单行改多个 PID 参数与零点微调",
     category: "工具与通信",
-    status: "已在小车上使用",
+    status: "学习笔记",
     year: "2026",
     cover: "",
     customUrl: "",
-    repoUrl: "https://github.com/momentcell/momentcell.github.io",
-    tags: ["USART2", "C99 状态机", "XCOM", "串口调参", "新手友好"],
+    repoUrl: "",
+    tags: ["USART2", "C99 状态机", "XCOM", "串口调参", "新手实用"],
     highlights: [
       { label: "解析方式", value: "中断双协议状态机" },
       { label: "可调参数", value: "14 项实时微调" },
@@ -77,24 +75,24 @@ window.PROJECTS_DATA = [
     year: "2026+",
     cover: "",
     customUrl: "",
-    repoUrl: "https://github.com/momentcell",
-    tags: ["奇思妙想", "新手成长", "持续更新"],
+    repoUrl: "",
+    tags: ["奇思妙想", "新手成长", "持续记录"],
     highlights: [
       { label: "当前阶段", value: "头脑风暴中" },
-      { label: "方向", value: "桌面小硬件 / 机器人" },
-      { label: "初心", value: "保持好奇与动手" }
+      { label: "方向", value: "桌面小硬件 / 小车" },
+      { label: "初心", value: "保持好奇与记录" }
     ],
-    summary: "这里留给下一个刚冒出来的小点子——也许是一台温暖的桌面小摆件、一个有趣的小传感器玩具，或者更进阶的机器人实验。等画完电路、调通代码，就会把完整笔记和踩坑记录放进来。",
-    overview: "作为嵌入式新手，每次逛开源社区都会冒出很多好玩的小点子。这个位置用来提醒自己：想到就画草图、买了器件就动手焊，一步步把想法做出来。",
+    summary: "这里留给下一个刚冒出来的小点子——也许是一台温暖的桌面小摆件、一个有趣的小传感器玩具，或者更进阶的小车实验。等画完电路、调通代码，就会把完整笔记和踩坑记录放进来。",
+    overview: "作为暑假才刚入门的嵌入式新手，平时断断续续地学，总怕学完就忘。这个位置用来提醒自己：想到就记下来、有空就动手试，一步步把想法做出来。",
     architecture: [
       "灵感备选 1：带温和暖光与屏幕交互的桌面小气象/番茄钟摆件。",
-      "灵感备选 2：升级平衡小车 3S 动力电池并补充实测波形对比记录。",
-      "灵感备选 3：尝试自己从零画一块完整的小型主控 PCB 并打样焊接。"
+      "灵感备选 2：给平衡小车换上更稳的动力电池，继续补充实测曲线和参数记录。",
+      "灵感备选 3：尝试自己从零画一块简单的小主控板并体验打样焊接。"
     ],
     challenges: [
       {
-        problem: "作为新手怎么坚持把一个个小点子真正落地？",
-        solution: "从小而具体的目标开始，每次解决一个小问题就记进这个小站，慢慢攒出属于自己的成长轨迹。"
+        problem: "平时断断续续学习，怎么避免过两周就忘光？",
+        solution: "每次把原理图、踩过的坑和调通的参数都整理到这个小站里，回头翻一眼就能很快接上进度。"
       }
     ],
     bom: [

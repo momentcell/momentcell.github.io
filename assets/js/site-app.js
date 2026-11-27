@@ -222,7 +222,7 @@
 
         ctx.fillStyle = p.muted;
         ctx.font = '600 11px "JetBrains Mono", Consolas, monospace';
-        ctx.fillText(`Angle: ${(s.theta * 57.3).toFixed(1)}°  60fps 零闪烁`, 10, 18);
+        ctx.fillText(`Angle: ${(s.theta * 57.3).toFixed(1)}°  · 点击小车可轻推`, 10, 18);
       }
       requestAnimationFrame(tick);
     }

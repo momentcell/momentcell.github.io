@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>STM32 自平衡小车 & 30cm 下台阶稳姿系统 — Sunshine Studio</title>
+  <title>STM32 两轮平衡小车学习与调优记录 — Sunshine</title>
   <link rel="stylesheet" href="../../assets/css/theme.css" />
   <link rel="stylesheet" href="../../assets/css/balance-car.css" />
 </head>
@@ -13,7 +13,7 @@
     <div class="container nav-inner">
       <a href="../../index.html" class="brand-link">
         <span class="brand-badge">S</span>
-        <span>Sunshine Studio</span>
+        <span>Sunshine</span>
       </a>
       <div class="nav-links">
         <a href="../../index.html#projects">返回项目库</a>
@@ -72,7 +72,7 @@
       <img src="../../assets/img/balance-car-hero.jpg" alt="STM32 自平衡小车暖阳工作室渲染图" />
       <div class="hero-art-caption">
         <span>作者：<strong>Sunshine</strong> · STM32 + MPU6050 + TB6612 + NRF24L01</span>
-        <span class="pill pill-warm">实车验证</span>
+        <span class="pill pill-warm">学习记录</span>
       </div>
     </div>
   </header>
@@ -96,9 +96,9 @@
     <section id="compare" class="section">
       <div class="section-header">
         <div>
-          <div class="section-kicker">00 · Engineering Upgrades</div>
-          <h2 class="section-title">从“普通晃动平衡车”到“丝滑稳姿 + 下 30cm 台阶”</h2>
-          <p class="section-desc">每一项优化都对应实车遇到的真实物理与代码瓶颈，一目了然看到改了什么、为什么有效。</p>
+          <div class="section-kicker">00 · Optimization Notes</div>
+          <h2 class="section-title">一步步排查与优化的前后对比</h2>
+          <p class="section-desc">记录在原有平衡车代码基础上遇到的主要问题、尝试过的改动思路以及对应效果。</p>
         </div>
       </div>
       <div class="data-table-wrap">
@@ -106,9 +106,9 @@
           <thead>
             <tr>
               <th>子系统</th>
-              <th>改造前问题</th>
-              <th>本工程核心升级</th>
-              <th>实车效果</th>
+              <th>原本遇到的问题</th>
+              <th>尝试的改进思路</th>
+              <th>改善方向</th>
             </tr>
           </thead>
           <tbody>
@@ -121,26 +121,26 @@
             <tr>
               <td><strong>角度内环 &amp; PWM</strong></td>
               <td>1ms 下差分微分阻尼缩小 10 倍；100 级 PWM + 过零 ±2% 硬跳变引起原地抽动</td>
-              <td>直接陀螺仪角速度阻尼（黄金系数 0.070）+ 3600 级 20kHz PWM + 0~1% 平滑死区</td>
-              <td><span class="pill pill-sage">精度提升 36 倍 · 原点丝滑</span></td>
+              <td>改用陀螺仪直接角速度阻尼（折中系数 0.070）+ 3600 级 20kHz PWM + 0~1% 平滑死区</td>
+              <td><span class="pill pill-sage">精细度提升 · 原点顺滑</span></td>
             </tr>
             <tr>
               <td><strong>速度外环 &amp; 下坡</strong></td>
               <td>50ms 更新滞后大，或纯 20ms 脉冲量化过粗导致慢速卡顿；坡度积分余量不足</td>
-              <td>10ms (100Hz) 更新 + 40ms 4 格滑动窗口（滞后压至 ~35ms）；倾角与积分上限大幅拓宽</td>
-              <td><span class="pill pill-sage">慢速不卡顿 · 下坡拉得住</span></td>
+              <td>10ms (100Hz) 更新 + 40ms 4 格滑动窗口（滞后压至 ~35ms）；放宽倾角与积分上限</td>
+              <td><span class="pill pill-sage">慢速少卡顿 · 下坡更稳</span></td>
             </tr>
             <tr>
               <td><strong>30cm 下台阶</strong></td>
-              <td>无跌落感知，悬空飞车/积分暴走，触地冲击叠加 52° 停机保护直接摔车</td>
+              <td>无跌落感知，悬空飞车/积分暴走，触地冲击叠加 52° 停机保护容易摔车</td>
               <td>三态状态机（G→A→L→G）：12ms 识失重、空中轮速匹配、2ms 识触地、140ms 顺势卸力+强阻尼</td>
-              <td><span class="pill pill-warm">0.25s 跌落稳稳接住</span></td>
+              <td><span class="pill pill-warm">下台阶防摔方案</span></td>
             </tr>
             <tr>
               <td><strong>实时调度与调试</strong></td>
               <td>USART2 抢占优先级高于 TIM1；1KB 栈逼近上限；改参必须反复重烧</td>
               <td>TIM1 优先级 0 + 奇偶毫秒错峰 + 2KB 栈加固 + USART2 正点原子 XCOM 实时热调参</td>
-              <td><span class="pill pill-sage">零超时 · 串口秒级调参</span></td>
+              <td><span class="pill pill-sage">运行更稳 · 调参更省事</span></td>
             </tr>
           </tbody>
         </table>
@@ -554,19 +554,19 @@
 
       <div class="story-grid" style="margin-bottom:18px;">
         <div class="story-card">
-          <span class="pill pill-coral">踩坑复盘 #1</span>
-          <h4>慢速卡顿抖动 → 黄金阻尼 + 40ms 滑窗</h4>
-          <p>第一版 0.13 阻尼在 9.28:1 齿隙上偏硬，第二版 80ms 窗+重低通又叠加出 91ms 相位滞后。最终定型 <code>GYRO_D_SCALE=0.025</code> + 100Hz 40ms 滑窗（滞后 35ms），兼顾丝滑与强下坡。</p>
+          <span class="pill pill-coral">踩坑记录 #1</span>
+          <h4>慢速卡顿抖动 → 折中阻尼 + 40ms 滑窗</h4>
+          <p>第一版 0.13 阻尼在 9.28:1 齿隙上偏硬，第二版 80ms 窗+重低通又叠加出 91ms 相位滞后。后来调成 <code>GYRO_D_SCALE=0.025</code> + 100Hz 40ms 滑窗（滞后 35ms），兼顾慢速顺滑和下坡控制。</p>
         </div>
         <div class="story-card">
-          <span class="pill pill-warm">踩坑复盘 #2</span>
+          <span class="pill pill-warm">踩坑记录 #2</span>
           <h4>启动闪屏停机 → 14500 掉压 + 2KB 栈加固</h4>
-          <p>结合原理图定位 7.4V 14500 电池耗尽时低于 AMS1117-5.0 临界压差引发欠压重启；同时查静态调用图将栈从 1KB 扩至 2KB，并改为奇偶毫秒错峰彻底消除隐患。</p>
+          <p>翻原理图才发现 7.4V 14500 电池快没电时会低于 AMS1117-5.0 的临界压差导致重启；顺便检查栈占用把栈从 1KB 扩到 2KB，并改成奇偶毫秒错峰，踏实很多。</p>
         </div>
         <div class="story-card">
-          <span class="pill pill-sage">踩坑复盘 #3</span>
+          <span class="pill pill-sage">踩坑记录 #3</span>
           <h4>30cm 落地前栽 → 轮速匹配 + 140ms 卸力</h4>
-          <p>空中抱死制动会导致落地瞬间轮胎“绊脚”前翻；改为空中闭环匹配离地前地速 <code>PreDropSpeed</code>，触地后先卸力追重心再从 70% 实际滚速斜坡刹停，落地行云流水。</p>
+          <p>空中抱死制动容易让落地瞬间轮胎“绊脚”前翻；尝试改成空中闭环匹配离地前地速 <code>PreDropSpeed</code>，触地后先卸力追重心再从 70% 实际滚速斜坡刹停，过渡平顺多了。</p>
         </div>
       </div>
 
@@ -604,10 +604,10 @@
 
   <footer class="site-footer">
     <div class="container footer-inner">
-      <span>© 2026 <strong>Sunshine</strong> · STM32 平衡小车工程交付页</span>
+      <span>© 2026 <strong>Sunshine</strong> · STM32 平衡小车学习记录页</span>
       <div style="display:flex;gap:14px;align-items:center;">
         <a href="mailto:2486989147a@gmail.com">2486989147a@gmail.com</a>
-        <a href="../../index.html">返回 Sunshine 个人网站 →</a>
+        <a href="../../index.html">返回 Sunshine 个人小站 →</a>
       </div>
     </div>
   </footer>

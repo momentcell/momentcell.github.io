@@ -20,7 +20,7 @@
       return;
     }
 
-    document.title = `${p.title} — Sunshine Studio`;
+    document.title = `${p.title} — Sunshine`;
 
     root.innerHTML = `
       <div class="card" style="margin-bottom:20px;">

@@ -1262,10 +1262,32 @@
     show("flicker");
   }
 
+  // ==================== 吸顶目录自动跟随滚动高亮 ====================
+  function initTocScrollSpy() {
+    const chips = Array.from(document.querySelectorAll(".toc-chip[href^='#']"));
+    if (!chips.length) return;
+    const pairs = chips
+      .map((chip) => ({ chip, sec: document.querySelector(chip.getAttribute("href")) }))
+      .filter((p) => p.sec);
+
+    function updateActive() {
+      const y = window.scrollY + 155;
+      let current = pairs[0];
+      for (const item of pairs) {
+        if (item.sec.offsetTop <= y) current = item;
+      }
+      pairs.forEach((p) => p.chip.classList.toggle("active", p === current));
+    }
+
+    window.addEventListener("scroll", updateActive, { passive: true });
+    updateActive();
+  }
+
   // ==================== 启动统一 60fps 零闪烁主循环 ====================
   document.addEventListener("DOMContentLoaded", () => {
     initArchInspector();
     initTroubleshooter();
+    initTocScrollSpy();
 
     const pidLab = initPidLab();
     const imuLab = initImuLab();
