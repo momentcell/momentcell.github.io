@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>STM32 自平衡小车 & 30cm 下台阶稳姿系统 — Sunshine Studio</title>
+  <link rel="stylesheet" href="../../assets/css/theme.css" />
+  <link rel="stylesheet" href="../../assets/css/balance-car.css" />
+</head>
+<body>
+  <!-- 顶部导航 -->
+  <nav class="site-nav">
+    <div class="container nav-inner">
+      <a href="../../index.html" class="brand-link">
+        <span class="brand-badge">S</span>
+        <span>Sunshine Studio</span>
+      </a>
+      <div class="nav-links">
+        <a href="../../index.html#projects">返回项目库</a>
+        <a href="#arch">软硬件架构</a>
+        <a href="#pid-lab">串级 PID 仿真</a>
+        <a href="#imu-lab">姿态解算</a>
+        <a href="#drop-lab">30cm 下台阶</a>
+        <a href="#rtos-lab">实时底层</a>
+      </div>
+      <div class="nav-actions">
+        <a href="../../assets/docs/schematic.pdf" target="_blank" class="btn btn-sm btn-soft">查看原理图 PDF</a>
+        <button class="btn btn-icon" data-theme-toggle aria-label="切换主题">🌙</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero 总览 -->
+  <header class="container bc-hero">
+    <div class="card hero-main">
+      <div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;">
+          <span class="pill pill-warm">嵌入式新手实战笔记</span>
+          <span class="pill pill-sage">STM32F103C8T6</span>
+          <span class="pill">零闪烁 60fps 互动演示</span>
+        </div>
+        <h1 class="hero-title" style="margin-top:14px;">
+          STM32 两轮平衡小车<br />
+          <span class="highlight">减晃调优 &amp; 30cm 下台阶小实验</span>
+        </h1>
+        <p class="hero-subtitle">
+          作为嵌入式新手一步步摸索出来的学习记录：整理了电路原理图、MPU6050 姿态解算、串级 PID 调参、30cm 下台阶防摔思路和真实踩坑复盘，希望能让同样刚入门的朋友轻松看懂。
+        </p>
+        <div class="hero-cta" style="margin-top:18px;">
+          <a href="#pid-lab" class="btn btn-primary">动手体验 PID 物理仿真</a>
+          <a href="#drop-lab" class="btn">看 30cm 下台阶慢动作</a>
+          <a href="../../index.html" class="btn btn-soft">← 返回 Sunshine 首页</a>
+        </div>
+      </div>
+      <div class="metrics-row">
+        <div class="metric-box">
+          <div class="metric-val">500 / 100 Hz</div>
+          <div class="metric-lbl">奇偶错峰双闭环</div>
+        </div>
+        <div class="metric-box">
+          <div class="metric-val">3600 级</div>
+          <div class="metric-lbl">20kHz 无啸叫 PWM</div>
+        </div>
+        <div class="metric-box">
+          <div class="metric-val">30 cm</div>
+          <div class="metric-lbl">离地→空中→落地稳姿</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card bc-hero-img">
+      <img src="../../assets/img/balance-car-hero.jpg" alt="STM32 自平衡小车暖阳工作室渲染图" />
+      <div class="hero-art-caption">
+        <span>作者：<strong>Sunshine</strong> · STM32 + MPU6050 + TB6612 + NRF24L01</span>
+        <span class="pill pill-warm">实车验证</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- 吸顶章节快速跳转 -->
+  <div class="bc-toc">
+    <div class="container bc-toc-inner">
+      <a class="toc-chip active" href="#compare">0. 优化成果对比</a>
+      <a class="toc-chip" href="#arch">1. 软硬件全景架构</a>
+      <a class="toc-chip" href="#pid-lab">2. 倒立摆 &amp; 串级 PID 仿真</a>
+      <a class="toc-chip" href="#imu-lab">3. 姿态解算 &amp; 自适应滤波</a>
+      <a class="toc-chip" href="#drop-lab">4. 30cm 下台阶动画</a>
+      <a class="toc-chip" href="#rtos-lab">5. 1ms 错峰 &amp; 滑窗测速</a>
+      <a class="toc-chip" href="#story">6. 调优日志 &amp; XCOM 排错</a>
+    </div>
+  </div>
+
+  <main class="container">
+
+    <!-- 0. 成果对比 -->
+    <section id="compare" class="section">
+      <div class="section-header">
+        <div>
+          <div class="section-kicker">00 · Engineering Upgrades</div>
+          <h2 class="section-title">从“普通晃动平衡车”到“丝滑稳姿 + 下 30cm 台阶”</h2>
+          <p class="section-desc">每一项优化都对应实车遇到的真实物理与代码瓶颈，一目了然看到改了什么、为什么有效。</p>
+        </div>
+      </div>
+      <div class="data-table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>子系统</th>
+              <th>改造前问题</th>
+              <th>本工程核心升级</th>
+              <th>实车效果</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>姿态采样与滤波</strong></td>
+              <td>MPU6050 未开 DLPF（256Hz 振动直入）；固定 Alpha 在失重/冲击下角度算飞</td>
+              <td>开启 42Hz 硬件 DLPF + 500Hz 同步采样 + 开机 160ms 自动浮点校准 + 自适应 Alpha 融合</td>
+              <td><span class="pill pill-sage">抗震动 · 失重不算飞</span></td>
+            </tr>
+            <tr>
+              <td><strong>角度内环 &amp; PWM</strong></td>
+              <td>1ms 下差分微分阻尼缩小 10 倍；100 级 PWM + 过零 ±2% 硬跳变引起原地抽动</td>
+              <td>直接陀螺仪角速度阻尼（黄金系数 0.070）+ 3600 级 20kHz PWM + 0~1% 平滑死区</td>
+              <td><span class="pill pill-sage">精度提升 36 倍 · 原点丝滑</span></td>
+            </tr>
+            <tr>
+              <td><strong>速度外环 &amp; 下坡</strong></td>
+              <td>50ms 更新滞后大，或纯 20ms 脉冲量化过粗导致慢速卡顿；坡度积分余量不足</td>
+              <td>10ms (100Hz) 更新 + 40ms 4 格滑动窗口（滞后压至 ~35ms）；倾角与积分上限大幅拓宽</td>
+              <td><span class="pill pill-sage">慢速不卡顿 · 下坡拉得住</span></td>
+            </tr>
+            <tr>
+              <td><strong>30cm 下台阶</strong></td>
+              <td>无跌落感知，悬空飞车/积分暴走，触地冲击叠加 52° 停机保护直接摔车</td>
+              <td>三态状态机（G→A→L→G）：12ms 识失重、空中轮速匹配、2ms 识触地、140ms 顺势卸力+强阻尼</td>
+              <td><span class="pill pill-warm">0.25s 跌落稳稳接住</span></td>
+            </tr>
+            <tr>
+              <td><strong>实时调度与调试</strong></td>
+              <td>USART2 抢占优先级高于 TIM1；1KB 栈逼近上限；改参必须反复重烧</td>
+              <td>TIM1 优先级 0 + 奇偶毫秒错峰 + 2KB 栈加固 + USART2 正点原子 XCOM 实时热调参</td>
+              <td><span class="pill pill-sage">零超时 · 串口秒级调参</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 1. 软硬件全景架构 -->
+    <section id="arch" class="section">
+      <div class="section-header">
+        <div>
+          <div class="section-kicker">01 · Hardware &amp; Software Architecture</div>
+          <h2 class="section-title">软硬件信号流全景架构图</h2>
+          <p class="section-desc">点击图中任意模块，右侧立刻展示对应的 PCB 真实引脚、C 语言驱动文件以及硬件避坑提示。</p>
+        </div>
+        <a href="../../assets/docs/schematic.pdf" target="_blank" class="btn btn-sm">下载完整原理图 PDF</a>
+      </div>
+
+      <div class="lab-grid">
+        <div class="card" style="padding:18px;">
+          <div style="overflow-x:auto;">
+            <svg viewBox="0 0 820 468" style="width:100%;min-width:620px;height:auto;display:block;">
+              <defs>
+                <marker id="m1" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><polygon points="0 0,7 3.5,0 7" fill="var(--primary)" /></marker>
+                <marker id="m2" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><polygon points="0 0,7 3.5,0 7" fill="var(--accent-sage)" /></marker>
+                <marker id="m3" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><polygon points="0 0,7 3.5,0 7" fill="var(--accent-gold)" /></marker>
+                <marker id="m4" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><polygon points="0 0,7 3.5,0 7" fill="var(--accent-coral)" /></marker>
+              </defs>
+
+              <!-- 分区底框 -->
+              <rect x="8" y="8" width="804" height="72" rx="12" fill="var(--bg-subtle)" stroke="var(--border)" stroke-dasharray="4 4" />
+              <text x="20" y="26" font-size="11" font-weight="700" fill="var(--text-muted)">电源系统 (Power Tree · 支持 2S/3S，严禁 4S)</text>
+
+              <rect x="8" y="94" width="218" height="366" rx="12" fill="var(--bg-subtle)" stroke="var(--border)" stroke-dasharray="4 4" />
+              <text x="20" y="113" font-size="11" font-weight="700" fill="var(--text-muted)">感知层 (Sensors)</text>
+
+              <rect x="240" y="94" width="322" height="366" rx="12" fill="var(--bg-subtle)" stroke="var(--border)" stroke-dasharray="4 4" />
+              <text x="252" y="113" font-size="11" font-weight="700" fill="var(--text-muted)">控制大脑 (STM32F103C8T6 · 72MHz)</text>
+
+              <rect x="576" y="94" width="236" height="366" rx="12" fill="var(--bg-subtle)" stroke="var(--border)" stroke-dasharray="4 4" />
+              <text x="588" y="113" font-size="11" font-weight="700" fill="var(--text-muted)">执行器 &amp; 人机交互层</text>
+
+              <!-- 动态流动连线 -->
+              <path d="M188 51 L248 51" stroke="var(--accent-gold)" stroke-width="2" class="bus-slow" marker-end="url(#m3)" />
+              <path d="M408 51 L468 51" stroke="var(--accent-gold)" stroke-width="2" class="bus-slow" marker-end="url(#m3)" />
+              <path d="M628 51 L694 51 L694 128" fill="none" stroke="var(--accent-gold)" stroke-width="2" class="bus-slow" marker-end="url(#m3)" />
+
+              <path d="M212 162 L256 162" stroke="var(--primary)" stroke-width="2.4" class="bus-fast" marker-end="url(#m1)" />
+              <path d="M212 246 L256 246" stroke="var(--accent-sage)" stroke-width="2.4" class="bus-fast" marker-end="url(#m2)" />
+              <path d="M212 330 L256 374" fill="none" stroke="var(--accent-coral)" stroke-width="1.8" class="bus-slow" marker-end="url(#m4)" />
+              <path d="M212 412 L256 412" stroke="var(--accent-coral)" stroke-width="1.8" class="bus-slow" marker-end="url(#m4)" />
+
+              <path d="M401 288 L401 324" stroke="var(--text-muted)" stroke-width="1.8" stroke-dasharray="3 3" />
+
+              <path d="M546 170 L590 170" stroke="var(--primary)" stroke-width="2.5" class="bus-fast" marker-end="url(#m1)" />
+              <path d="M694 212 L694 242" stroke="var(--primary)" stroke-width="2.5" class="bus-fast" marker-end="url(#m1)" />
+              <path d="M546 352 L590 352" stroke="var(--accent-sage)" stroke-width="1.8" class="bus-slow" marker-end="url(#m2)" />
+              <path d="M546 416 L590 416" stroke="var(--accent-coral)" stroke-width="1.8" class="bus-slow" marker-end="url(#m4)" />
+
+              <!-- 电源节点 -->
+              <g class="hw-node" data-hw="power">
+                <rect x="22" y="33" width="166" height="36" rx="8" fill="var(--bg-elevated)" stroke="var(--accent-gold)" stroke-width="1.8" />
+                <text x="105" y="55" text-anchor="middle" font-size="12" font-weight="700" fill="var(--text)">锂电池 BAT1 + 开关 U9</text>
+              </g>
+              <g class="hw-node" data-hw="power">
+                <rect x="250" y="33" width="158" height="36" rx="8" fill="var(--bg-elevated)" stroke="var(--accent-gold)" stroke-width="1.6" />
+                <text x="329" y="55" text-anchor="middle" font-size="12" font-weight="700" fill="var(--text)">5V 稳压 U7 / U8</text>
+              </g>
+              <g class="hw-node" data-hw="power">
+                <rect x="470" y="33" width="158" height="36" rx="8" fill="var(--bg-elevated)" stroke="var(--accent-gold)" stroke-width="1.6" />
+                <text x="549" y="55" text-anchor="middle" font-size="12" font-weight="700" fill="var(--text)">3.3V 稳压 U6 / U4</text>
+              </g>
+
+              <!-- 感知节点 -->
+              <g class="hw-node" data-hw="mpu">
+                <rect x="22" y="130" width="190" height="66" rx="10" fill="var(--bg-elevated)" stroke="var(--primary)" stroke-width="2" />
+                <text x="117" y="151" text-anchor="middle" font-size="12.5" font-weight="700" fill="var(--text)">MPU6050 6 轴 IMU</text>
+                <text x="117" y="168" text-anchor="middle" font-size="11" fill="var(--text-muted)">PB10(SCL) / PB11(SDA)</text>
+                <text x="117" y="185" text-anchor="middle" font-size="10.5" fill="var(--primary)">500Hz · DLPF 42Hz · ±16g</text>
+              </g>
+
+              <g class="hw-node" data-hw="encoder">
+                <rect x="22" y="212" width="190" height="66" rx="10" fill="var(--bg-elevated)" stroke="var(--accent-sage)" stroke-width="2" />
+                <text x="117" y="233" text-anchor="middle" font-size="12.5" font-weight="700" fill="var(--text)">双路霍尔正交编码器</text>
+                <text x="117" y="250" text-anchor="middle" font-size="11" fill="var(--text-muted)">TIM3(PA6/7) · TIM4(PB6/7)</text>
+                <text x="117" y="267" text-anchor="middle" font-size="10.5" fill="var(--accent-sage)">408.17脉冲/圈 · 40ms滑窗</text>
+              </g>
+
+              <g class="hw-node" data-hw="ur">
+                <rect x="22" y="294" width="190" height="66" rx="10" fill="var(--bg-elevated)" stroke="var(--border-strong)" stroke-width="1.6" />
+                <text x="117" y="315" text-anchor="middle" font-size="12" font-weight="700" fill="var(--text)">超声波模块 HC-SR04</text>
+                <text x="117" y="332" text-anchor="middle" font-size="11" fill="var(--text-muted)">PA9(Trig) / PA10(Echo)</text>
+                <text x="117" y="349" text-anchor="middle" font-size="10.5" fill="var(--text-muted)">60ms 节拍避障测距</text>
+              </g>
+
+              <g class="hw-node" data-hw="key">
+                <rect x="22" y="376" width="190" height="68" rx="10" fill="var(--bg-elevated)" stroke="var(--border-strong)" stroke-width="1.6" />
+                <text x="117" y="397" text-anchor="middle" font-size="12" font-weight="700" fill="var(--text)">按键 K1~K4 &amp; LED</text>
+                <text x="117" y="414" text-anchor="middle" font-size="11" fill="var(--text-muted)">PB1/PB0/PA5/PA4 · PC13</text>
+                <text x="117" y="431" text-anchor="middle" font-size="10.5" fill="var(--text-muted)">K1启停 · K2自动避障</text>
+              </g>
+
+              <!-- MCU 内核节点 -->
+              <g class="hw-node selected" data-hw="isr">
+                <rect x="256" y="130" width="290" height="158" rx="12" fill="var(--bg-elevated)" stroke="var(--primary)" stroke-width="2.4" />
+                <text x="401" y="152" text-anchor="middle" font-size="13" font-weight="800" fill="var(--text)">TIM1 1ms 实时中断 (最高优先级 0)</text>
+                <rect x="270" y="164" width="262" height="34" rx="7" fill="var(--bg-subtle)" stroke="var(--primary)" />
+                <text x="401" y="185" text-anchor="middle" font-size="11.5" fill="var(--text)">偶数ms 500Hz：滤波 + 下台阶机 + 角度环</text>
+                <rect x="270" y="205" width="262" height="34" rx="7" fill="var(--bg-subtle)" stroke="var(--accent-sage)" />
+                <text x="401" y="226" text-anchor="middle" font-size="11.5" fill="var(--text)">奇数ms 100Hz：40ms滑窗 + 速度/转向环</text>
+                <rect x="270" y="246" width="262" height="30" rx="7" fill="var(--bg-subtle)" stroke="var(--border)" />
+                <text x="401" y="265" text-anchor="middle" font-size="11" fill="var(--text-muted)">1ms 按键扫描 · 50/60ms 置主循环标志</text>
+              </g>
+
+              <g class="hw-node" data-hw="mainloop">
+                <rect x="256" y="324" width="290" height="120" rx="12" fill="var(--bg-elevated)" stroke="var(--border-strong)" stroke-width="1.8" />
+                <text x="401" y="346" text-anchor="middle" font-size="13" font-weight="800" fill="var(--text)">main() 非阻塞业务主循环</text>
+                <text x="401" y="368" text-anchor="middle" font-size="11.5" fill="var(--text-secondary)">• 开机 160ms 自动校准零漂与初始倾角</text>
+                <text x="401" y="388" text-anchor="middle" font-size="11.5" fill="var(--text-secondary)">• 50ms 刷新 OLED (状态字 G / A / L)</text>
+                <text x="401" y="408" text-anchor="middle" font-size="11.5" fill="var(--text-secondary)">• 轮询 NRF24L01 遥控与回传遥测</text>
+                <text x="401" y="428" text-anchor="middle" font-size="11.5" fill="var(--text-secondary)">• 解析正点原子 XCOM 实时调参指令</text>
+              </g>
+
+              <!-- 执行器与交互 -->
+              <g class="hw-node" data-hw="motor">
+                <rect x="590" y="130" width="208" height="82" rx="10" fill="var(--bg-elevated)" stroke="var(--primary)" stroke-width="2" />
+                <text x="694" y="151" text-anchor="middle" font-size="12.5" font-weight="700" fill="var(--text)">TB6612FNG 双 H 桥驱动</text>
+                <text x="694" y="169" text-anchor="middle" font-size="11" fill="var(--text-muted)">TIM2 PA0/PA1 · PB12~15</text>
+                <text x="694" y="186" text-anchor="middle" font-size="10.5" fill="var(--primary)">20kHz 无啸叫 · 3600级 PWM</text>
+                <text x="694" y="202" text-anchor="middle" font-size="10.5" fill="var(--text-muted)">VM 动力直连电池 (≤15V)</text>
+              </g>
+
+              <g class="hw-node" data-hw="motor">
+                <rect x="590" y="242" width="208" height="60" rx="10" fill="var(--bg-elevated)" stroke="var(--primary)" stroke-width="1.5" />
+                <text x="694" y="265" text-anchor="middle" font-size="12.5" font-weight="700" fill="var(--text)">左右直流减速电机</text>
+                <text x="694" y="283" text-anchor="middle" font-size="11" fill="var(--text-muted)">1:9.28 减速箱 · 驱动车轮追重心</text>
+              </g>
+
+              <g class="hw-node" data-hw="oled">
+                <rect x="590" y="320" width="208" height="58" rx="10" fill="var(--bg-elevated)" stroke="var(--accent-sage)" stroke-width="1.6" />
+                <text x="694" y="343" text-anchor="middle" font-size="12.5" font-weight="700" fill="var(--text)">0.96寸 OLED 仪表盘</text>
+                <text x="694" y="361" text-anchor="middle" font-size="11" fill="var(--text-muted)">PB8/PB9 · 显示 PID/倾角/状态</text>
+              </g>
+
+              <g class="hw-node" data-hw="comm">
+                <rect x="590" y="392" width="208" height="52" rx="10" fill="var(--bg-elevated)" stroke="var(--accent-coral)" stroke-width="1.6" />
+                <text x="694" y="413" text-anchor="middle" font-size="12" font-weight="700" fill="var(--text)">NRF24L01 &amp; XCOM 串口</text>
+                <text x="694" y="431" text-anchor="middle" font-size="11" fill="var(--text-muted)">2.4G遥控 + PA2/PA3 热调参</text>
+              </g>
+            </svg>
+          </div>
+        </div>
+
+        <div class="card" style="display:flex;flex-direction:column;justify-content:space-between;gap:14px;">
+          <div>
+            <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border);padding-bottom:10px;margin-bottom:12px;">
+              <span class="pill pill-warm">选中模块详情</span>
+              <span id="hwFileTag" class="mono" style="font-size:0.78rem;color:var(--text-muted);">User/main.c</span>
+            </div>
+            <h3 id="hwTitle" style="margin:0 0 10px;font-size:1.12rem;">TIM1 1ms 实时控制内核</h3>
+            <div id="hwPins" class="mono" style="font-size:0.78rem;background:var(--bg-subtle);border:1px solid var(--border);border-radius:10px;padding:10px 12px;margin-bottom:12px;"></div>
+            <div id="hwDesc" style="font-size:0.88rem;color:var(--text-secondary);line-height:1.68;"></div>
+          </div>
+          <div id="hwTip" class="callout-warm"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. 倒立摆 & 串级 PID 物理仿真 -->
+    <section id="pid-lab" class="section">
+      <div class="section-header">
+        <div>
+          <div class="section-kicker">02 · Inverted Pendulum &amp; Cascade PID Simulator</div>
+          <h2 class="section-title">倒立摆物理 &amp; 双闭环串级 PID 实时实验室</h2>
+          <p class="section-desc">像“手掌托着扫帚”一样理解平衡车：你可以用鼠标直接把小车拖歪，或体验下坡控速、关闭速度环与旧版硬死区抖动。</p>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;">
+          <button id="btnPushFwd" class="btn btn-sm btn-primary" type="button">向前推 (+14°)</button>
+          <button id="btnPushBack" class="btn btn-sm" type="button">向后推 (-14°)</button>
+          <button id="btnSlope" class="btn btn-sm" type="button">下坡模式: 关</button>
+          <button id="btnNoSpeed" class="btn btn-sm btn-soft" type="button">体验: 关速度外环</button>
+          <button id="btnResetPid" class="btn btn-sm" type="button">重置</button>
+        </div>
+      </div>
+
+      <div class="lab-grid">
+        <div class="card" style="padding:18px;display:flex;flex-direction:column;gap:12px;">
+          <div class="canvas-shell h-280"><canvas id="pidCanvas"></canvas></div>
+          <div class="canvas-shell h-140"><canvas id="pidScope"></canvas></div>
+          <div class="telemetry-strip">
+            <div class="tele-item">
+              <div class="tele-label"><span class="tele-dot" style="background:var(--canvas-c1)"></span>倾角 Angle</div>
+              <div id="roAngle" class="tele-val">0.0°</div>
+            </div>
+            <div class="tele-item">
+              <div class="tele-label"><span class="tele-dot" style="background:var(--canvas-c3)"></span>目标倾角 Target</div>
+              <div id="roTarget" class="tele-val">0.0°</div>
+            </div>
+            <div class="tele-item">
+              <div class="tele-label"><span class="tele-dot" style="background:var(--canvas-c2)"></span>轮速 Speed</div>
+              <div id="roSpeed" class="tele-val">0.00 rps</div>
+            </div>
+            <div class="tele-item">
+              <div class="tele-label"><span class="tele-dot" style="background:var(--canvas-c4)"></span>电机 PWM</div>
+              <div id="roPwm" class="tele-val">0%</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card control-group">
+          <h3 style="margin:0 0 4px;font-size:1rem;">实时调参控制台（与 XCOM 一一对应）</h3>
+
+          <div class="slider-row">
+            <div class="slider-head"><span>角度环 Kp (<code>akp</code> · 弹簧刚度)</span><b id="valAkp">4.8</b></div>
+            <input id="slAkp" type="range" min="1.5" max="9.0" step="0.1" value="4.8" />
+          </div>
+          <div class="slider-row">
+            <div class="slider-head"><span>角度环 Kd (<code>akd</code> · 陀螺仪减震阻尼)</span><b id="valAkd">2.8</b></div>
+            <input id="slAkd" type="range" min="0.0" max="6.0" step="0.1" value="2.8" />
+          </div>
+          <div class="slider-row">
+            <div class="slider-head"><span>速度环 Kp (<code>skp</code> · 控速与下坡拉车)</span><b id="valSkp">2.2</b></div>
+            <input id="slSkp" type="range" min="0.0" max="4.5" step="0.1" value="2.2" />
+          </div>
+          <div class="slider-row">
+            <div class="slider-head"><span>速度环 Ki (<code>ski</code> · 自动寻零/抗坡度)</span><b id="valSki">0.012</b></div>
+            <input id="slSki" type="range" min="0.0" max="0.035" step="0.002" value="0.012" />
+          </div>
+          <div class="slider-row">
+            <div class="slider-head"><span>死区补偿 (<code>off</code> · 克服静摩擦)</span><b id="valOff">2.0</b></div>
+            <input id="slOff" type="range" min="0.0" max="5.0" step="0.2" value="2.0" />
+          </div>
+          <div class="slider-row">
+            <div class="slider-head"><span>遥控目标速度 (<code>spd</code>)</span><b id="valSpd">0.0 rps</b></div>
+            <input id="slSpd" type="range" min="-2.0" max="2.0" step="0.2" value="0.0" />
+          </div>
+
+          <label style="display:flex;align-items:center;gap:8px;font-size:0.84rem;padding-top:6px;border-top:1px solid var(--border);cursor:pointer;">
+            <input id="chkHardDeadzone" type="checkbox" style="accent-color:var(--primary);" />
+            <span>对比旧版：开启过零硬跳变死区 + 100级截断</span>
+          </label>
+
+          <div class="callout-warm" style="font-size:0.81rem;">
+            <strong>为什么必须串级？</strong>速度外环算出“应该前倾/后仰多少度（虚线）”，角度内环再高速控制车轮去追这个倾角。内环关 <code>AngleKi</code>、外环关 <code>SpeedKd</code>，才能彻底杜绝双积分互搏与脉冲尖刺。
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. 姿态解算 & 自适应滤波 -->
+    <section id="imu-lab" class="section">
+      <div class="section-header">
+        <div>
+          <div class="section-kicker">03 · Sensor Fusion &amp; Adaptive Complementary Filter</div>
+          <h2 class="section-title">MPU6050 姿态解算 &amp; 自适应互补滤波示波器</h2>
+          <p class="section-desc">切换下方 4 种真实物理工况，亲眼看到加速度计如何失真、以及动态权重 Alpha 如何在失重和 8g 冲击下保护姿态角。</p>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;">
+          <button class="btn btn-sm btn-primary imu-mode-btn" data-mode="normal" type="button">平地微晃</button>
+          <button class="btn btn-sm imu-mode-btn" data-mode="accel" type="button">急加速干扰</button>
+          <button class="btn btn-sm imu-mode-btn" data-mode="freefall" type="button">失重自由落体 (0g)</button>
+          <button class="btn btn-sm imu-mode-btn" data-mode="impact" type="button">触地 8g 冲击</button>
+        </div>
+      </div>
+
+      <div class="lab-grid">
+        <div class="card" style="padding:18px;display:flex;flex-direction:column;gap:12px;">
+          <div class="canvas-shell h-280"><canvas id="imuCanvas"></canvas></div>
+          <div class="telemetry-strip">
+            <div class="tele-item">
+              <div class="tele-label">合加速度 AccMagG</div>
+              <div id="imuAccG" class="tele-val">1.00 g</div>
+            </div>
+            <div class="tele-item">
+              <div class="tele-label">实时权重 Alpha</div>
+              <div id="imuAlpha" class="tele-val">0.0015</div>
+            </div>
+            <div class="tele-item">
+              <div class="tele-label">融合策略</div>
+              <div id="imuStrategy" class="tele-val" style="font-size:0.86rem;">稳态轻权重融合</div>
+            </div>
+            <div class="tele-item">
+              <div class="tele-label">实时融合误差</div>
+              <div id="imuErrInfo" class="tele-val">0.12°</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="display:flex;flex-direction:column;gap:12px;font-size:0.86rem;">
+          <h3 style="margin:0;font-size:1rem;">三层姿态防线，缺一不可</h3>
+          <div style="padding:12px;border-radius:12px;background:var(--bg-subtle);border:1px solid var(--border);">
+            <strong>1. 硬件 42Hz 低通滤波 (DLPF)</strong>
+            <p style="margin:4px 0 0;color:var(--text-secondary);">写入 <code>MPU6050_CONFIG=0x03</code>，在传感器内部就先把减速齿轮和电机的 100Hz+ 机械噪声削平。</p>
+          </div>
+          <div style="padding:12px;border-radius:12px;background:var(--bg-subtle);border:1px solid var(--border);">
+            <strong>2. 开机 160ms 自动零漂校准</strong>
+            <p style="margin:4px 0 0;color:var(--text-secondary);"><code>IMU_CalibrateOnBoot()</code> 自动采样计算浮点 <code>GyroY_Offset</code>，并立刻用加速度计初始化 <code>Angle</code>，告别开机慢飘。</p>
+          </div>
+          <div style="padding:12px;border-radius:12px;background:var(--bg-subtle);border:1px solid var(--border);">
+            <strong>3. 失重/冲击自动置 α = 0</strong>
+            <p style="margin:4px 0 0;color:var(--text-secondary);">一旦 <code>|AccMagG - 1.0| ≥ 0.20g</code>，或处于空中 / 触地 120ms 窗口，强制纯陀螺仪积分，0g 与 8g 毛刺零渗透！</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. 30cm 下台阶双车对比动画 -->
+    <section id="drop-lab" class="section">
+      <div class="section-header">
+        <div>
+          <div class="section-kicker">04 · 30cm Step-Down Recovery State Machine</div>
+          <h2 class="section-title">30cm 下台阶三态稳姿机制 · 慢动作双车对比动画</h2>
+          <p class="section-desc">自由落体仅 0.247 秒、落地速度 2.43 m/s。拖动下方时间轴，逐帧拆解优化版如何接住 30cm 跌落而不摔。</p>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;">
+          <button id="btnDropPlay" class="btn btn-sm btn-primary" type="button">重新播放</button>
+          <button id="btnDropPause" class="btn btn-sm" type="button">暂停</button>
+          <button id="btnDropSlow" class="btn btn-sm" type="button">倍速: 0.35x 慢动作</button>
+          <select id="selDropMode" class="btn btn-sm" style="padding-right:10px;">
+            <option value="compare">双车同屏对比</option>
+            <option value="smart">仅看优化三态机</option>
+            <option value="naive">仅看原版 PID 翻车</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="card" style="padding:18px;display:flex;flex-direction:column;gap:12px;">
+        <div class="canvas-shell h-310"><canvas id="dropCanvas"></canvas></div>
+        <div style="display:flex;align-items:center;gap:12px;font-size:0.82rem;">
+          <span style="white-space:nowrap;color:var(--text-muted);">拖动时间轴逐帧观察：</span>
+          <input id="slDropScrub" type="range" min="0" max="2.2" step="0.01" value="0" />
+          <b id="dropTimeLabel" class="mono" style="min-width:52px;text-align:right;color:var(--primary);">0.00 s</b>
+        </div>
+        <div class="canvas-shell h-140"><canvas id="dropChart"></canvas></div>
+
+        <div class="phase-grid">
+          <div id="phaseCard0" class="phase-card">
+            <h4>① 台阶接近 · GROUND (G)</h4>
+            <p>慢滤波 <code>GroundSpeedMemo</code> 持续记住真实接近速度，不受台阶边缘瞬间打滑污染。</p>
+          </div>
+          <div id="phaseCard1" class="phase-card">
+            <h4>② 离地失重 · AIRBORNE (A)</h4>
+            <p><code>AccMagG &lt; 0.58g</code> 满 12ms（仅落 0.7mm）触发！<code>α=0</code> 纯陀螺仪，轮速闭环锁在 <code>PreDropSpeed</code>，触地不绊脚。</p>
+          </div>
+          <div id="phaseCard2" class="phase-card">
+            <h4>③ 触地救车 · LANDING (0~140ms)</h4>
+            <p><code>&gt;1.45g</code> 2ms 瞬时响应！屏蔽加速度计 120ms，释放速度环顺势追重心，增益拉升至 <code>1.45x Kp / 1.75x Kd</code>，保护角放宽到 <code>68°</code>。</p>
+          </div>
+          <div id="phaseCard3" class="phase-card">
+            <h4>④ 顺势刹停 (140~420ms → G)</h4>
+            <p>速度环从当前实际滚速的 70% 斜坡减速至 0，像人跳下台阶缓冲一小步再稳稳站定。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. 1ms 错峰调度 + 40ms 滑窗 + 3600级 PWM -->
+    <section id="rtos-lab" class="section">
+      <div class="section-header">
+        <div>
+          <div class="section-kicker">05 · Real-Time Scheduling &amp; Signal Conditioning</div>
+          <h2 class="section-title">实时底层揭秘：1ms 错峰调度、40ms 滑窗测速与 3600 级 PWM</h2>
+          <p class="section-desc">没有 FPU 的 STM32F103 如何做到丝滑零抖动且中断永不超时？答案藏在这三张底层机制图里。</p>
+        </div>
+      </div>
+
+      <div class="lab-grid-equal">
+        <div class="card" style="padding:18px;display:flex;flex-direction:column;gap:12px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <h3 style="margin:0;font-size:1rem;">TIM1 1ms 奇偶毫秒错峰调度时序</h3>
+            <span class="pill pill-sage">NVIC 抢占优先级 0</span>
+          </div>
+          <div class="canvas-shell h-220"><canvas id="schedCanvas"></canvas></div>
+          <p style="margin:0;font-size:0.83rem;color:var(--text-secondary);">
+            <code>SpeedDivCnt</code> 初值设为 <code>1</code>，使 10ms 速度环落在<strong>奇数 ms</strong>，2ms 角度环落在<strong>偶数 ms</strong>，两者永不同帧撞车；剩余 CPU 时间顺畅运行 OLED、NRF24L01 与 XCOM。
+          </p>
+        </div>
+
+        <div class="card" style="padding:18px;display:flex;flex-direction:column;gap:12px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;">
+            <h3 style="margin:0;font-size:1rem;">10ms 刷新 + 40ms 滑动窗口测速</h3>
+            <label style="font-size:0.8rem;display:flex;align-items:center;gap:8px;">
+              轮速 <b id="encSpeedVal" class="mono" style="color:var(--primary);">0.40 rps</b>
+              <input id="slEncSpeed" type="range" min="0.10" max="2.50" step="0.05" value="0.40" style="width:110px;" />
+            </label>
+          </div>
+          <div class="canvas-shell h-160"><canvas id="encCanvas"></canvas></div>
+          <div class="slots-row">
+            <div id="slotBox0" class="slot-box"><div class="n">Slot 0</div><div id="slotVal0" class="v">0</div></div>
+            <div id="slotBox1" class="slot-box"><div class="n">Slot 1</div><div id="slotVal1" class="v">0</div></div>
+            <div id="slotBox2" class="slot-box"><div class="n">Slot 2</div><div id="slotVal2" class="v">0</div></div>
+            <div id="slotBox3" class="slot-box"><div class="n">Slot 3</div><div id="slotVal3" class="v">0</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:18px;padding:18px;display:flex;flex-direction:column;gap:10px;">
+        <h3 style="margin:0;font-size:1rem;">3600 级 20kHz 高精度 PWM &amp; 过零平滑死区曲线</h3>
+        <div class="canvas-shell h-180"><canvas id="pwmCanvas"></canvas></div>
+      </div>
+    </section>
+
+    <!-- 6. 真实工程调优复盘 + 交互排错 -->
+    <section id="story" class="section">
+      <div class="section-header">
+        <div>
+          <div class="section-kicker">06 · Debugging Notes &amp; XCOM Field Guide</div>
+          <h2 class="section-title">真实踩坑记录 &amp; 串口排错小本本</h2>
+          <p class="section-desc">新手成长最快的方式就是把每次翻车都记下来：下面是我真实遇到的问题、查出来的原因和解决方法。</p>
+        </div>
+      </div>
+
+      <div class="story-grid" style="margin-bottom:18px;">
+        <div class="story-card">
+          <span class="pill pill-coral">踩坑复盘 #1</span>
+          <h4>慢速卡顿抖动 → 黄金阻尼 + 40ms 滑窗</h4>
+          <p>第一版 0.13 阻尼在 9.28:1 齿隙上偏硬，第二版 80ms 窗+重低通又叠加出 91ms 相位滞后。最终定型 <code>GYRO_D_SCALE=0.025</code> + 100Hz 40ms 滑窗（滞后 35ms），兼顾丝滑与强下坡。</p>
+        </div>
+        <div class="story-card">
+          <span class="pill pill-warm">踩坑复盘 #2</span>
+          <h4>启动闪屏停机 → 14500 掉压 + 2KB 栈加固</h4>
+          <p>结合原理图定位 7.4V 14500 电池耗尽时低于 AMS1117-5.0 临界压差引发欠压重启；同时查静态调用图将栈从 1KB 扩至 2KB，并改为奇偶毫秒错峰彻底消除隐患。</p>
+        </div>
+        <div class="story-card">
+          <span class="pill pill-sage">踩坑复盘 #3</span>
+          <h4>30cm 落地前栽 → 轮速匹配 + 140ms 卸力</h4>
+          <p>空中抱死制动会导致落地瞬间轮胎“绊脚”前翻；改为空中闭环匹配离地前地速 <code>PreDropSpeed</code>，触地后先卸力追重心再从 70% 实际滚速斜坡刹停，落地行云流水。</p>
+        </div>
+      </div>
+
+      <div class="lab-grid-equal">
+        <div class="card">
+          <h3 style="margin:0 0 12px;font-size:1rem;">交互式故障诊断器（点击实车现象）</h3>
+          <div class="sym-grid">
+            <button class="btn btn-sm btn-primary sym-btn" data-sym="flicker" type="button">闪屏启动不了</button>
+            <button class="btn btn-sm sym-btn" data-sym="hf_shake" type="button">原地高频嗡嗡抖</button>
+            <button class="btn btn-sm sym-btn" data-sym="slow_wobble" type="button">慢速卡顿慢晃</button>
+            <button class="btn btn-sm sym-btn" data-sym="slope" type="button">下坡溜车</button>
+            <button class="btn btn-sm sym-btn" data-sym="drop_fwd" type="button">下台阶前栽</button>
+            <button class="btn btn-sm sym-btn" data-sym="drop_back" type="button">下台阶后仰</button>
+          </div>
+          <div id="symResult" style="background:var(--bg-subtle);border:1px solid var(--border);border-radius:12px;padding:14px;font-size:0.85rem;"></div>
+        </div>
+
+        <div class="card">
+          <h3 style="margin:0 0 10px;font-size:1rem;">正点原子 XCOM 串口热调参速查（点击即可复制）</h3>
+          <p style="margin:0 0 12px;font-size:0.82rem;color:var(--text-muted);">
+            接线：USB 转 TTL 接 <code>PA2 (TX) → RXD</code>、<code>PA3 (RX) → TXD</code>、<code>GND 共地</code> · 波特率 <code>9600</code> · 勾选<strong>发送新行</strong>
+          </p>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:0.81rem;">
+            <div class="highlight-chip" data-copy-cmd="show"><div class="k">查看全部参数与耗时</div><div class="v">show</div></div>
+            <div class="highlight-chip" data-copy-cmd="start"><div class="k">远程启动 / 停止</div><div class="v">start / stop</div></div>
+            <div class="highlight-chip" data-copy-cmd="akp=4.8 akd=2.8"><div class="k">角度环刚度与阻尼</div><div class="v">akp=4.8 akd=2.8</div></div>
+            <div class="highlight-chip" data-copy-cmd="off=2.0 zero=3.0"><div class="k">死区与机械零点</div><div class="v">off=2.0 zero=3.0</div></div>
+            <div class="highlight-chip" data-copy-cmd="skp=2.2 ski=0.012"><div class="k">速度环控速/下坡</div><div class="v">skp=2.2 ski=0.012</div></div>
+            <div class="highlight-chip" data-copy-cmd="lkp=1.45 lkd=1.75 lroll=140"><div class="k">30cm 落地增强参数</div><div class="v">lkp=1.45 lkd=1.75</div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <span>© 2026 <strong>Sunshine</strong> · STM32 平衡小车工程交付页</span>
+      <div style="display:flex;gap:14px;align-items:center;">
+        <a href="mailto:2486989147a@gmail.com">2486989147a@gmail.com</a>
+        <a href="../../index.html">返回 Sunshine 个人网站 →</a>
+      </div>
+    </div>
+  </footer>
+
+  <div id="toast" class="toast"></div>
+
+  <script src="../../assets/js/theme.js"></script>
+  <script src="../../assets/js/canvas-engine.js"></script>
+  <script src="../../assets/js/balance-car-sims.js"></script>
+</body>
+</html>

@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sunshine · 硬件与工程项目个人空间</title>
+  <meta name="description" content="Sunshine 的个人项目仓库：嵌入式控制、机器人算法、硬件原理图与交互式工程仿真。" />
+  <link rel="stylesheet" href="assets/css/theme.css" />
+</head>
+<body>
+  <!-- 顶部毛玻璃导航 -->
+  <nav class="site-nav">
+    <div class="container nav-inner">
+      <a href="#top" class="brand-link">
+        <span class="brand-badge" id="navMonogram">S</span>
+        <span id="navBrandName">Sunshine</span>
+      </a>
+      <div class="nav-links">
+        <a href="#projects" class="active">项目仓库</a>
+        <a href="#skills">技术栈</a>
+        <a href="#timeline">成长日志</a>
+        <a href="#contact">联系我</a>
+      </div>
+      <div class="nav-actions">
+        <button class="btn btn-sm btn-soft" id="btnOpenTemplate" type="button">+ 新增项目模板</button>
+        <a class="btn btn-sm" id="navGithub" href="https://github.com/momentcell" target="_blank" rel="noopener">GitHub</a>
+        <button class="btn btn-icon" data-theme-toggle aria-label="切换主题">🌙</button>
+      </div>
+    </div>
+  </nav>
+
+  <main id="top" class="container">
+    <!-- Hero Bento Grid -->
+    <section class="hero-bento">
+      <div class="card hero-main">
+        <div>
+          <span class="pill pill-sage">
+            <span class="pulse-dot"></span>
+            <span id="heroStatus">正在探索嵌入式控制、机器人与交互可视化</span>
+          </span>
+          <h1 class="hero-title">
+            你好，我是 <span class="highlight" id="heroName">Sunshine</span><br />
+            <span id="heroRole">嵌入式系统 &amp; 机器人控制创作者</span>
+          </h1>
+          <p class="hero-subtitle" id="heroTagline"></p>
+          <div class="hero-cta" style="margin-top:20px;">
+            <a href="projects/balance-car/index.html" class="btn btn-primary">看看我的第一个小作品：STM32 平衡小车 →</a>
+            <a href="#projects" class="btn">浏览小仓库</a>
+            <button class="btn btn-soft" id="btnCopyEmailHero" type="button">复制邮箱</button>
+          </div>
+        </div>
+
+        <div class="metrics-row" id="heroMetrics"></div>
+      </div>
+
+      <div class="hero-side">
+        <div class="card hero-art-card">
+          <img id="heroStudioImg" src="assets/img/studio-hero.jpg" alt="Sunshine 暖阳硬件创作工作室" />
+          <div class="hero-art-caption">
+            <span>Sunshine's Hardware &amp; Firmware Desk</span>
+            <span class="pill pill-warm">暖阳工作室</span>
+          </div>
+        </div>
+
+        <div class="card mini-sim-card">
+          <div class="mini-sim-head">
+            <span>⚖️ 实时微缩平衡车（点一下轻推它）</span>
+            <button class="btn btn-sm btn-soft" id="btnMiniNudge" type="button" style="padding:3px 10px;font-size:0.75rem;">轻推一下</button>
+          </div>
+          <div class="canvas-shell" style="height:126px;border-radius:12px;border:1px solid var(--border);background:var(--canvas-bg);overflow:hidden;">
+            <canvas id="miniCarCanvas"></canvas>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 项目仓库 -->
+    <section id="projects" class="section">
+      <div class="section-header">
+        <div>
+          <div class="section-kicker">Project &amp; Idea Vault</div>
+          <h2 class="section-title">我的学习作品与小点子仓库</h2>
+          <p class="section-desc">记录作为嵌入式新手折腾过的每一个小实验、踩过的坑和有趣的 Idea，还在慢慢积累中。</p>
+        </div>
+        <span class="pill" id="projectCountBadge">共 3 个项目</span>
+      </div>
+
+      <div class="vault-toolbar">
+        <div class="filter-tabs" id="filterTabs"></div>
+        <div class="search-box">
+          <span class="search-icon">🔍</span>
+          <input id="projectSearch" type="search" placeholder="搜索项目名、芯片或技术标签..." />
+        </div>
+      </div>
+
+      <div class="projects-grid" id="projectsGrid"></div>
+    </section>
+
+    <!-- 技能矩阵 -->
+    <section id="skills" class="section">
+      <div class="section-header">
+        <div>
+          <div class="section-kicker">Learning Map</div>
+          <h2 class="section-title">正在学习与接触的技术清单</h2>
+          <p class="section-desc">还在打基础的阶段，边做小项目边查资料，一点点补齐软硬件知识拼图。</p>
+        </div>
+      </div>
+      <div class="skills-grid" id="skillsGrid"></div>
+    </section>
+
+    <!-- 工程成长时间轴 -->
+    <section id="timeline" class="section">
+      <div class="section-header">
+        <div>
+          <div class="section-kicker">Engineering Journal</div>
+          <h2 class="section-title">最近更新与创作足迹</h2>
+        </div>
+      </div>
+      <div class="timeline" id="timelineGrid"></div>
+    </section>
+
+    <!-- 联系与交流 -->
+    <section id="contact" class="section">
+      <div class="card contact-card">
+        <div>
+          <div class="section-kicker">Say Hello</div>
+          <h2 class="section-title" style="margin-bottom:6px;">欢迎交流学习，也欢迎大佬指点！</h2>
+          <p class="section-desc" style="margin:0;">
+            如果你也是喜欢折腾嵌入式的小白，或者对我的小点子有改进建议，随时发邮件聊聊呀。
+          </p>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;">
+          <a id="contactMailLink" href="mailto:2486989147a@gmail.com" class="btn btn-primary">发送邮件 · 2486989147a@gmail.com</a>
+          <button id="btnCopyEmailFooter" class="btn" type="button">一键复制邮箱</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <span>© <span id="footerYear">2026</span> <strong id="footerName">Sunshine</strong> · Built with warm sunlight &amp; clean code</span>
+      <span>托管于 GitHub Pages · 零构建纯静态架构</span>
+    </div>
+  </footer>
+
+  <!-- 新增项目模板生成器弹窗 -->
+  <div class="modal-backdrop" id="templateModal" aria-hidden="true">
+    <div class="modal-panel">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <h3 style="margin:0;font-size:1.1rem;">+ 快速新增个人项目到仓库</h3>
+        <button class="btn btn-sm" id="btnCloseModal" type="button">关闭</button>
+      </div>
+      <p style="margin:0 0 12px;font-size:0.85rem;color:var(--text-secondary);">
+        填写下面几项，自动生成规范代码片段，粘贴到 <code>data/projects.js</code> 的 <code>PROJECTS_DATA</code> 数组中保存即可在网站生效！
+      </p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
+        <input id="tplTitle" type="text" placeholder="项目名称（如：ESP32 桌面天气时钟）" style="padding:8px 12px;border-radius:10px;border:1px solid var(--border);background:var(--bg-subtle);color:var(--text);font-family:inherit;" />
+        <input id="tplCat" type="text" placeholder="分类（如：嵌入式与控制）" value="嵌入式与控制" style="padding:8px 12px;border-radius:10px;border:1px solid var(--border);background:var(--bg-subtle);color:var(--text);font-family:inherit;" />
+        <input id="tplTags" type="text" placeholder="标签，逗号分隔（如：ESP32,LVGL,PCB）" style="padding:8px 12px;border-radius:10px;border:1px solid var(--border);background:var(--bg-subtle);color:var(--text);font-family:inherit;" />
+        <input id="tplRepo" type="text" placeholder="GitHub 仓库链接（选填）" value="https://github.com/" style="padding:8px 12px;border-radius:10px;border:1px solid var(--border);background:var(--bg-subtle);color:var(--text);font-family:inherit;" />
+      </div>
+      <input id="tplSummary" type="text" placeholder="一句话项目简介..." style="width:100%;padding:8px 12px;border-radius:10px;border:1px solid var(--border);background:var(--bg-subtle);color:var(--text);font-family:inherit;margin-bottom:12px;" />
+      <pre class="modal-pre mono" id="tplPreview"></pre>
+      <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:12px;">
+        <button class="btn btn-primary" id="btnCopyTpl" type="button">一键复制配置代码</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+  <script src="data/site-config.js"></script>
+  <script src="data/projects.js"></script>
+  <script src="assets/js/theme.js"></script>
+  <script src="assets/js/canvas-engine.js"></script>
+  <script src="assets/js/site-app.js"></script>
+</body>
+</html>
