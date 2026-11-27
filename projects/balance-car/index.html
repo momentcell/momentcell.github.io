@@ -18,10 +18,10 @@
       <div class="nav-links">
         <a href="../../index.html#projects">返回项目库</a>
         <a href="#arch">软硬件架构</a>
-        <a href="#pid-lab">串级 PID 仿真</a>
+        <a href="#pid-lab">串级 PID</a>
         <a href="#imu-lab">姿态解算</a>
         <a href="#drop-lab">30cm 下台阶</a>
-        <a href="#rtos-lab">实时底层</a>
+        <a href="#downloads">源码与资料</a>
       </div>
       <div class="nav-actions">
         <a href="../../assets/docs/schematic.pdf" target="_blank" class="btn btn-sm btn-soft">查看原理图 PDF</a>
@@ -48,8 +48,8 @@
         </p>
         <div class="hero-cta" style="margin-top:18px;">
           <a href="#pid-lab" class="btn btn-primary">动手体验 PID 物理仿真</a>
-          <a href="#drop-lab" class="btn">看 30cm 下台阶慢动作</a>
-          <a href="../../index.html" class="btn btn-soft">← 返回 Sunshine 首页</a>
+          <a href="#downloads" class="btn">下载源码与全套资料</a>
+          <a href="#drop-lab" class="btn btn-soft">看 30cm 下台阶慢动作</a>
         </div>
       </div>
       <div class="metrics-row">
@@ -86,7 +86,8 @@
       <a class="toc-chip" href="#imu-lab">3. 姿态解算</a>
       <a class="toc-chip" href="#drop-lab">4. 30cm 下台阶</a>
       <a class="toc-chip" href="#rtos-lab">5. 1ms 错峰 &amp; 滑窗</a>
-      <a class="toc-chip" href="#story">6. 踩坑记录 &amp; 排错</a>
+      <a class="toc-chip" href="#story">6. 踩坑与排错</a>
+      <a class="toc-chip" href="#downloads">7. 源码与资料</a>
     </div>
   </div>
 
@@ -597,6 +598,139 @@
             <div class="highlight-chip" data-copy-cmd="skp=2.2 ski=0.012"><div class="k">速度环控速/下坡</div><div class="v">skp=2.2 ski=0.012</div></div>
             <div class="highlight-chip" data-copy-cmd="lkp=1.45 lkd=1.75 lroll=140"><div class="k">30cm 落地增强参数</div><div class="v">lkp=1.45 lkd=1.75</div></div>
           </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7. 完整源码与全部工程资料下载 -->
+    <section id="downloads" class="section">
+      <div class="section-header">
+        <div>
+          <div class="section-kicker">07 · Source Code, Schematics &amp; 3D Files</div>
+          <h2 class="section-title">完整源码、原理图、3D 模型与文字资料打包</h2>
+          <p class="section-desc">整理并上传了本次折腾用到的全套 Keil5 源码、PCB 引脚原理图、3D 打印结构件 STL 和文字版学习笔记，方便自己随时回看，也欢迎同好免费参考交流。</p>
+        </div>
+        <a href="downloads/STM32-Balance-Car-Full-Pack.zip" download class="btn btn-primary">一键打包下载全套资料 (466 KB)</a>
+      </div>
+
+      <div class="resource-grid">
+        <div class="card resource-card">
+          <div>
+            <span class="pill pill-warm">推荐 · 一键获取</span>
+            <h3>全套资料合集压缩包 (.zip)</h3>
+            <p>已去除 Keil 编译临时中间文件，打包包含：完整可编译的 <strong>STM32 平衡车 Keil5 工程</strong>、<strong>PCB 引脚原理图 PDF</strong>、<strong>3D 打印底板/电池盒 STL</strong>、<strong>文字版原理教程 Markdown</strong> 与 <strong>NRF 遥控端驱动文件</strong>。</p>
+          </div>
+          <div class="resource-actions">
+            <a href="downloads/STM32-Balance-Car-Full-Pack.zip" download class="btn btn-sm btn-primary">下载完整合集 ZIP (466 KB)</a>
+            <span class="pill">开箱即编 · 无编译垃圾</span>
+          </div>
+        </div>
+
+        <div class="card resource-card">
+          <div>
+            <span class="pill pill-sage">Keil5 完整工程</span>
+            <h3>STM32F103C8T6 平衡车固件源码</h3>
+            <p>共 103 个源码与标准外设库文件（<code>User/</code>、<code>Hardware/</code>、<code>System/</code>、<code>Library/</code>、<code>Start/</code> 及 <code>Project.uvprojx</code>），下载后直接用 Keil MDK 5 打开即可编译烧录。</p>
+          </div>
+          <div class="resource-actions">
+            <a href="https://github.com/momentcell/momentcell.github.io/tree/main/projects/balance-car/firmware" target="_blank" rel="noopener" class="btn btn-sm btn-primary">GitHub 在线浏览源码目录 →</a>
+            <a href="https://github.com/momentcell/momentcell.github.io/blob/main/projects/balance-car/firmware/User/main.c" target="_blank" rel="noopener" class="btn btn-sm">直达 main.c</a>
+          </div>
+        </div>
+
+        <div class="card resource-card">
+          <div>
+            <span class="pill pill-warm">硬件与结构</span>
+            <h3>PCB 引脚原理图 PDF &amp; 3D 打印 STL</h3>
+            <p>包含主控板完整引脚与电源树原理图，以及小车底板、电池盒两份 3D 打印模型文件，方便核对接线或直接切片打印外壳结构。</p>
+          </div>
+          <div class="resource-actions">
+            <a href="../../assets/docs/schematic.pdf" target="_blank" class="btn btn-sm btn-primary">在线查看原理图 PDF</a>
+            <a href="3d-models/%E5%B0%8F%E8%BD%A6%E5%BA%95%E6%9D%BF.stl" download="小车底板.stl" class="btn btn-sm">下载小车底板.stl</a>
+            <a href="3d-models/%E7%94%B5%E6%B1%A0%E7%9B%92.stl" download="电池盒.stl" class="btn btn-sm">下载电池盒.stl</a>
+          </div>
+        </div>
+
+        <div class="card resource-card">
+          <div>
+            <span class="pill pill-sage">文档与配套</span>
+            <h3>文字版架构教程 &amp; NRF 遥控端资料</h3>
+            <p>文字版笔记带 Mermaid 架构图、公式拆解与代码阅读顺序；另附手头现有的 NRF24L01 遥控端硬件驱动与工程配置（注：本地目录暂缺遥控端 <code>User/main.c</code>，后续补齐再更新）。</p>
+          </div>
+          <div class="resource-actions">
+            <a href="https://github.com/momentcell/momentcell.github.io/blob/main/projects/balance-car/docs/balance_car_guide.md" target="_blank" rel="noopener" class="btn btn-sm btn-primary">阅读 Markdown 教程 →</a>
+            <a href="https://github.com/momentcell/momentcell.github.io/tree/main/projects/balance-car/nrf-remote" target="_blank" rel="noopener" class="btn btn-sm">浏览 NRF 遥控驱动</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="padding:18px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:12px;">
+          <h3 style="margin:0;font-size:1rem;">核心固件源码文件直达索引（点击在 GitHub 查看代码）</h3>
+          <span class="pill">STM32F103C8T6 · Keil5 ARMCC 零警告通过</span>
+        </div>
+        <div class="data-table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>文件路径</th>
+                <th>模块职责与本次关键改动</th>
+                <th>查看</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="mono"><strong>User/main.c</strong></td>
+                <td>开机 160ms 自动零漂校准、自适应互补滤波、三态 30cm 下台阶状态机、奇偶毫秒错峰 <code>TIM1</code> 中断、XCOM 串口命令解析</td>
+                <td><a class="file-link" href="https://github.com/momentcell/momentcell.github.io/blob/main/projects/balance-car/firmware/User/main.c" target="_blank" rel="noopener">查看代码 →</a></td>
+              </tr>
+              <tr>
+                <td class="mono"><strong>User/PID.c / PID.h</strong></td>
+                <td>直接陀螺仪角速度微分 <code>PID_UpdateWithDeriv</code>、条件抗积分饱和、<code>0~1%</code> 线性平滑死区补偿</td>
+                <td><a class="file-link" href="https://github.com/momentcell/momentcell.github.io/blob/main/projects/balance-car/firmware/User/PID.c" target="_blank" rel="noopener">查看代码 →</a></td>
+              </tr>
+              <tr>
+                <td class="mono"><strong>Hardware/MPU6050.c</strong></td>
+                <td>开启 42Hz 硬件低通滤波（<code>CONFIG=0x03</code>）、500Hz 同步采样，保留 <code>±16g</code> / <code>±2000°/s</code> 量程防触地削顶</td>
+                <td><a class="file-link" href="https://github.com/momentcell/momentcell.github.io/blob/main/projects/balance-car/firmware/Hardware/MPU6050.c" target="_blank" rel="noopener">查看代码 →</a></td>
+              </tr>
+              <tr>
+                <td class="mono"><strong>Hardware/MyI2C.c</strong></td>
+                <td>GPIO 寄存器直驱 + 轻量内联 <code>__nop()</code> 延时（~350kHz），单次 14 字节突发读取压低至 &lt;220us</td>
+                <td><a class="file-link" href="https://github.com/momentcell/momentcell.github.io/blob/main/projects/balance-car/firmware/Hardware/MyI2C.c" target="_blank" rel="noopener">查看代码 →</a></td>
+              </tr>
+              <tr>
+                <td class="mono"><strong>Hardware/PWM.c &amp; Motor.c</strong></td>
+                <td><code>TIM2</code> 升级 20kHz 3600 级无啸叫 PWM（<code>ARR=3599, PSC=0</code>）及 <code>Motor_SetPWM_Float</code> 浮点占空比接口</td>
+                <td><a class="file-link" href="https://github.com/momentcell/momentcell.github.io/blob/main/projects/balance-car/firmware/Hardware/PWM.c" target="_blank" rel="noopener">PWM.c</a> · <a class="file-link" href="https://github.com/momentcell/momentcell.github.io/blob/main/projects/balance-car/firmware/Hardware/Motor.c" target="_blank" rel="noopener">Motor.c</a></td>
+              </tr>
+              <tr>
+                <td class="mono"><strong>Hardware/Encoder.c</strong></td>
+                <td><code>TIM3</code> / <code>TIM4</code> 双路四倍频正交编码器驱动（1:9.28 减速比，408.17 脉冲/圈）</td>
+                <td><a class="file-link" href="https://github.com/momentcell/momentcell.github.io/blob/main/projects/balance-car/firmware/Hardware/Encoder.c" target="_blank" rel="noopener">查看代码 →</a></td>
+              </tr>
+              <tr>
+                <td class="mono"><strong>Hardware/BlueSerial.c</strong></td>
+                <td><code>USART2</code>（<code>PA2/PA3</code>）中断双协议接收（支持正点原子 XCOM 换行指令与 <code>[...]</code> 帧）+ 静态缓冲防溢栈</td>
+                <td><a class="file-link" href="https://github.com/momentcell/momentcell.github.io/blob/main/projects/balance-car/firmware/Hardware/BlueSerial.c" target="_blank" rel="noopener">查看代码 →</a></td>
+              </tr>
+              <tr>
+                <td class="mono"><strong>Hardware/NRF24L01.c / UR.c / OLED.c</strong></td>
+                <td>2.4G 无线遥控通信、超声波回波超时防护（防卡死主循环）与 0.96 寸 OLED 仪表盘显示</td>
+                <td><a class="file-link" href="https://github.com/momentcell/momentcell.github.io/blob/main/projects/balance-car/firmware/Hardware/NRF24L01.c" target="_blank" rel="noopener">NRF</a> · <a class="file-link" href="https://github.com/momentcell/momentcell.github.io/blob/main/projects/balance-car/firmware/Hardware/UR.c" target="_blank" rel="noopener">UR</a> · <a class="file-link" href="https://github.com/momentcell/momentcell.github.io/blob/main/projects/balance-car/firmware/Hardware/OLED.c" target="_blank" rel="noopener">OLED</a></td>
+              </tr>
+              <tr>
+                <td class="mono"><strong>System/Timer.c</strong></td>
+                <td><code>TIM1</code> 1ms 周期中断与 NVIC 最高抢占优先级 <code>0</code> 配置，确保姿态与 PID 绝不被串口打断</td>
+                <td><a class="file-link" href="https://github.com/momentcell/momentcell.github.io/blob/main/projects/balance-car/firmware/System/Timer.c" target="_blank" rel="noopener">查看代码 →</a></td>
+              </tr>
+              <tr>
+                <td class="mono"><strong>Start/startup_stm32f10x_md.s</strong></td>
+                <td>启动汇编文件：将默认 <code>Stack_Size</code> 由 1KB（<code>0x400</code>）扩充至 2KB（<code>0x800</code>），杜绝中断嵌套溢栈</td>
+                <td><a class="file-link" href="https://github.com/momentcell/momentcell.github.io/blob/main/projects/balance-car/firmware/Start/startup_stm32f10x_md.s" target="_blank" rel="noopener">查看代码 →</a></td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
     </section>

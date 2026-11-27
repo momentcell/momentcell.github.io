@@ -34,6 +34,11 @@
         <div class="tag-row" style="margin-top:14px;">
           ${(p.tags || []).map((t) => `<span class="tag">${t}</span>`).join("")}
         </div>
+        ${(p.repoUrl || p.downloadUrl) ? `
+        <div class="hero-cta" style="margin-top:16px;">
+          ${p.repoUrl ? `<a href="${p.repoUrl}" target="_blank" rel="noopener" class="btn btn-sm btn-primary">在线查看源码 →</a>` : ""}
+          ${p.downloadUrl ? `<a href="${p.downloadUrl}" download class="btn btn-sm btn-soft">打包下载完整资料</a>` : ""}
+        </div>` : ""}
         <div class="highlights-grid" style="margin-top:18px;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));">
           ${(p.highlights || []).map((h) => `<div class="highlight-chip"><div class="k">${h.label}</div><div class="v">${h.value}</div></div>`).join("")}
         </div>

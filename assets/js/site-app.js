@@ -141,7 +141,8 @@
             </div>
             <div class="project-actions">
               <a href="${href}" class="btn btn-sm btn-primary">${p.customUrl ? "进入交互仿真展示页 →" : "查看项目详情 →"}</a>
-              ${p.repoUrl ? `<a href="${p.repoUrl}" target="_blank" rel="noopener" class="btn btn-sm">源码仓库</a>` : ""}
+              ${p.repoUrl ? `<a href="${p.repoUrl}" target="_blank" rel="noopener" class="btn btn-sm">浏览源码</a>` : ""}
+              ${p.downloadUrl ? `<a href="${p.downloadUrl}" download class="btn btn-sm btn-soft">打包下载资料</a>` : ""}
             </div>
           </div>
         </article>`;

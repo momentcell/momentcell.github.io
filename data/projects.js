@@ -14,7 +14,8 @@ window.PROJECTS_DATA = [
     year: "2026",
     cover: "assets/img/balance-car-hero.jpg",
     customUrl: "projects/balance-car/index.html",
-    repoUrl: "",
+    repoUrl: "https://github.com/momentcell/momentcell.github.io/tree/main/projects/balance-car/firmware",
+    downloadUrl: "projects/balance-car/downloads/STM32-Balance-Car-Full-Pack.zip",
     tags: ["STM32F103", "串级 PID", "MPU6050", "互补滤波", "30cm下台阶", "NRF24L01", "XCOM调参"],
     highlights: [
       { label: "控制周期", value: "500Hz / 100Hz" },
@@ -34,7 +35,7 @@ window.PROJECTS_DATA = [
     year: "2026",
     cover: "",
     customUrl: "",
-    repoUrl: "",
+    repoUrl: "https://github.com/momentcell/momentcell.github.io/blob/main/projects/balance-car/firmware/Hardware/BlueSerial.c",
     tags: ["USART2", "C99 状态机", "XCOM", "串口调参", "新手实用"],
     highlights: [
       { label: "解析方式", value: "中断双协议状态机" },
